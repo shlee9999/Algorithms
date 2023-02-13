@@ -16,8 +16,8 @@ public class No_34{
             b = Long.parseLong(st.nextToken());
             k = Integer.parseInt(st.nextToken());
             s = a + b;
-            int alpha = (int) (a * power(2, k) % s);
-            bw.write("#" + test_case + " " + Math.min(alpha, s - alpha) + '\n');
+            int result = (int) (a * power(2, k) % s);
+            bw.write("#" + test_case + " " + Math.min(result, s - result) + '\n');
         }
         bw.flush();
         bw.close();
