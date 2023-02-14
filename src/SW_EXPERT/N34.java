@@ -3,7 +3,7 @@ package SW_EXPERT;
 import java.io.*;
 import java.util.StringTokenizer;
 
-public class No_34{
+public class N34{
     static long s;
     static int k;
     static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
