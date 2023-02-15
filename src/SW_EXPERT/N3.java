@@ -1,8 +1,12 @@
+package SW_EXPERT;
+
+
 import java.io.*;
 import java.util.LinkedList;
 import java.util.StringTokenizer;
 
-class Solution {
+
+class N3 { //암호문3
     public static void main(String[] args) throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
