@@ -1,88 +1,81 @@
 import java.util.Arrays;
 
-class UserSolution {    //최대 최솟값 찾기
-    final int INF = 100000001, MAX_SIZE = 150001;
-    int size;
-    Node[] tree = new Node[MAX_SIZE * 4];
+class UserSolution {
+    int[][] graph;
+    int[] dx = {0, 0, 1, -1};
+    int[] dy = {1, -1, 0, 0};
+    int MAP_SIZE;
 
-    void init(int N, int[] mValue) { //동일. size만 좀 다름
-        Arrays.fill(tree, new Node());
-        size = 0;
-        for (int i = 0; i < N; i++) {
-            update(1, MAX_SIZE, 1, ++size, mValue[i]);
+    void bfs_init(int map_size, int map[][]) {
+        graph = new int[map_size][map_size];
+        for (int i = 0; i < map_size; i++) {
+            for (int j = 0; j < map_size; j++) {
+                graph[i][j] = map[i][j];
+            }
         }
+        MAP_SIZE = map_size;
     }
 
-    Node merge(Node n1, Node n2) { //동일2
-        int min = Math.min(n1.min, n2.min);
-        int max = Math.max(n1.max, n2.max);
-        int alive = n1.alive + n2.alive;
-        return new Node(min, max, alive);
-    }
-
-    void add(int M, int[] mValue) { //동일
-        for (int i = 0; i < M; i++) update(1, MAX_SIZE, 1, ++size, mValue[i]);
-    }
-
-    void update(int s, int e, int n, int i, int val) { //동일함2
-        if (i < s || i > e) return; //범위 밖 -> 변경사항 없음
-        if (s == e) {
-            if (val == -100) tree[n] = new Node();
-            else tree[n] = new Node(val, val, 1);
-            return;
+    int bfs(int x1, int y1, int x2, int y2) {
+        que q = new que();
+        boolean[][] visited = new boolean[MAP_SIZE][MAP_SIZE];
+        q.add(new point(y1 - 1, x1 - 1));
+        int d = 0;
+        while (!q.isempty()) {
+            int qSize = q.size;
+            for (int z = 0; z < qSize; z++) {
+                point cur = q.poll();
+                if (cur.x == x2 - 1 && cur.y == y2 - 1) return d;
+                visited[cur.y][cur.x] = true;
+                for (int i = 0; i < 4; i++) {
+                    int a = cur.y + dy[i];
+                    int b = cur.x + dx[i];
+                    if (0 <= a && a < MAP_SIZE && 0 <= b && b < MAP_SIZE && !visited[a][b] && graph[a][b] == 0) {
+                        q.add(new point(a, b));
+                    }
+                }
+            }
+            d++;
         }
-        int mid = (s + e) / 2;   //범위 내 -> 분할
-        update(s, mid, 2 * n, i, val);
-        update(mid + 1, e, 2 * n + 1, i, val);
-        tree[n] = merge(tree[n * 2], tree[n * 2 + 1]);
+        return -1;
     }
 
-    Node query(int s, int e, int n, int ps, int pe) { //동일2
-        if (s > pe || e < ps) return new Node();
-        if (ps<=s && e<=pe) return tree[n];
-        int mid = (s + e) / 2;
-        Node n1 = query(s, mid, 2 * n, ps, pe);
-        Node n2 = query(mid + 1, e, 2 * n + 1, ps, pe);
-        return merge(n1, n2);
-    }
+    class que {
+        point[] q = new point[200];
 
-    int find_num_th_index(int s, int e, int n, int num) { //동일
-        if (s == e) return s;  //리프 노드 도착 -> 인덱스 반환만
-        int mid = (s + e) / 2;
-        if (tree[2 * n].alive >= num) return find_num_th_index(s, mid, 2 * n, num);
-        return find_num_th_index(mid + 1, e, 2 * n + 1, num - tree[2 * n].alive);
-    }
-
-    void erase(int mFrom, int mTo) { //동일
-        for (int i = mTo; i >= mFrom; i--) {
-            int find = find_num_th_index(1, MAX_SIZE, 1, i);
-            update(1, MAX_SIZE, 1, find, -100);
-        }
-    }
-
-
-    int find(int K) { //R값?
-        int T = tree[1].alive; //살아있는 수의 개수
-        int L = find_num_th_index(1, MAX_SIZE, 1, T - K + 1);
-        Node result = query(1, MAX_SIZE, 1, L, size);
-        return result.max - result.min;
-    }
-
-    class Node {
-        int min;
-        int max;
-        int alive;
-
-        public Node() {
-            min = INF;
-            max = -95;
-            alive = 0;
+        public que() {
         }
 
-        public Node(int min, int max, int alive) {
-            this.min = min;
-            this.max = max;
-            this.alive = alive;
+        int size = 0;
+
+        void add(point p) {
+            q[size++] = p;
         }
+
+        point poll() {
+            point a = q[0];
+            for (int i = 0; i < size - 1; i++) {
+                q[i] = q[i + 1];
+            }
+            size--;
+            return a;
+        }
+
+        boolean isempty() {
+            return size == 0;
+        }
+
+    }
+
+    class point {
+        int y;
+        int x;
+
+        public point(int y, int x) {
+            this.y = y;
+            this.x = x;
+        }
+
+
     }
 }

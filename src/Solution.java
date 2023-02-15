@@ -1,53 +1,57 @@
-import jdk.nashorn.internal.ir.CallNode;
-
-import java.io.*;
-import java.util.LinkedList;
-import java.util.NoSuchElementException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-class Solution {
-    public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+public class Solution {
+
+    private final static UserSolution usersolution = new UserSolution();
+
+    private static BufferedReader br;
+
+    private static int cmd_bfs() throws Exception {
+
+        int score = 100;
+        int N, M, x1, y1, x2, y2, dist, ans;
+        int[][] map = new int[10][10];
+        String str;
         StringTokenizer st;
-        int T = Integer.parseInt(br.readLine());
-        int N, M, L;
-        for (int test_case = 1; test_case <= T; test_case++) {
-            st = new StringTokenizer(br.readLine());
-            N = Integer.parseInt(st.nextToken());
-            M = Integer.parseInt(st.nextToken());
-            L = Integer.parseInt(st.nextToken());
-            st = new StringTokenizer(br.readLine());
-            LinkedList<Integer> arr = new LinkedList<>();
-            for (int i = 0; i < N; i++) arr.add(Integer.parseInt(st.nextToken()));
-            for (int i = 0; i < M; i++) {
-                String[] split = br.readLine().split(" ");
-                String c = split[0];
-                switch (c) {
-                    case "I": {
-                        int index = Integer.parseInt(split[1]);
-                        int val = Integer.parseInt(split[2]);
-                        arr.add(index, val);
-                        break;
-                    }
-                    case "D": {
-                        int index = Integer.parseInt(split[1]);
-                        arr.remove(index);
-                        break;
-                    }
-                    case "C": {
-                        int index = Integer.parseInt(split[1]);
-                        int val = Integer.parseInt(split[2]);
-                        arr.set(index, val);
-                        break;
-                    }
-                }
+
+        br = new BufferedReader(new InputStreamReader(System.in));
+        str = br.readLine();
+        N = Integer.parseInt(str);
+
+        for(int i = 0; i < N; i++) {
+            str = br.readLine();
+            st = new StringTokenizer(str, " ");
+            for(int j = 0; j < N; j++) {
+                map[i][j] = Integer.parseInt(st.nextToken());
             }
-            bw.write("#" + test_case + " ");
-            if (L < arr.size()) bw.write(arr.get(L) + "\n");
-            else bw.write("-1\n");
         }
-        bw.flush();
-        bw.close();
+
+        usersolution.bfs_init(N, map);
+
+        str = br.readLine();
+        M = Integer.parseInt(str);
+
+        for(int i = 1; i <= M; i++) {
+            str = br.readLine();
+            st = new StringTokenizer(str, " ");
+            x1 = Integer.parseInt(st.nextToken());
+            y1 = Integer.parseInt(st.nextToken());
+            x2 = Integer.parseInt(st.nextToken());
+            y2 = Integer.parseInt(st.nextToken());
+            ans = Integer.parseInt(st.nextToken());
+
+            dist = usersolution.bfs(x1, y1, x2, y2);
+
+            if(dist != ans) {
+                score = 0;
+            }
+        }
+        return score;
+    }
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("#total score : " + cmd_bfs());
     }
 }
