@@ -1,3 +1,5 @@
+package SW_EXPERT.PRO.N9;
+
 import java.util.*;
 
 class UserSolution {

@@ -1,12 +1,12 @@
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeSet;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        int length = Integer.parseInt(br.readLine());
-        String parent = br.readLine();
-        
+        Map<Integer, Integer> map = new HashMap<>();
+
     }
 
 }
