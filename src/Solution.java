@@ -2,56 +2,67 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.StringTokenizer;
 
-public class Solution {
+class Solution {
+    private final static int CMD_INIT = 1;
+    private final static int CMD_ARRIVE = 2;
+    private final static int CMD_LEAVE = 3;
 
     private final static UserSolution usersolution = new UserSolution();
 
-    private static BufferedReader br;
+    private static boolean run(BufferedReader br) throws Exception {
+        int q = Integer.parseInt(br.readLine());
 
-    private static int cmd_bfs() throws Exception {
+        int n, mid;
+        int cmd, ans, ret = 0;
+        boolean okay = false;
 
-        int score = 100;
-        int N, M, x1, y1, x2, y2, dist, ans;
-        int[][] map = new int[10][10];
-        String str;
-        StringTokenizer st;
-
-        br = new BufferedReader(new InputStreamReader(System.in));
-        str = br.readLine();
-        N = Integer.parseInt(str);
-
-        for(int i = 0; i < N; i++) {
-            str = br.readLine();
-            st = new StringTokenizer(str, " ");
-            for(int j = 0; j < N; j++) {
-                map[i][j] = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < q; ++i) {
+            StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+            cmd = Integer.parseInt(st.nextToken());
+            switch (cmd) {
+                case CMD_INIT:
+                    n = Integer.parseInt(st.nextToken());
+                    usersolution.init(n);
+                    okay = true;
+                    break;
+                case CMD_ARRIVE:
+                    mid = Integer.parseInt(st.nextToken());
+                    ans = Integer.parseInt(st.nextToken());
+                    ret = usersolution.arrive(mid);
+                    if (ret != ans)
+                        okay = false;
+                    break;
+                case CMD_LEAVE:
+                    mid = Integer.parseInt(st.nextToken());
+                    ans = Integer.parseInt(st.nextToken());
+                    ret = usersolution.leave(mid);
+                    if (ret != ans)
+                        okay = false;
+                    break;
+                default:
+                    okay = false;
+                    break;
             }
         }
-
-        usersolution.bfs_init(N, map);
-
-        str = br.readLine();
-        M = Integer.parseInt(str);
-
-        for(int i = 1; i <= M; i++) {
-            str = br.readLine();
-            st = new StringTokenizer(str, " ");
-            x1 = Integer.parseInt(st.nextToken());
-            y1 = Integer.parseInt(st.nextToken());
-            x2 = Integer.parseInt(st.nextToken());
-            y2 = Integer.parseInt(st.nextToken());
-            ans = Integer.parseInt(st.nextToken());
-
-            dist = usersolution.bfs(x1, y1, x2, y2);
-
-            if(dist != ans) {
-                score = 0;
-            }
-        }
-        return score;
+        return okay;
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println("#total score : " + cmd_bfs());
+        int TC, MARK;
+
+        System.setIn(new java.io.FileInputStream("src/sample_input.txt"));
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
+
+        TC = Integer.parseInt(st.nextToken());
+        MARK = Integer.parseInt(st.nextToken());
+
+        for (int testcase = 1; testcase <= TC; ++testcase) {
+            int score = run(br) ? MARK : 0;
+            System.out.println("#" + testcase + " " + score);
+        }
+
+        br.close();
     }
 }

@@ -1,81 +1,122 @@
-import java.util.Arrays;
+import java.util.*;
 
 class UserSolution {
-    int[][] graph;
-    int[] dx = {0, 0, 1, -1};
-    int[] dy = {1, -1, 0, 0};
-    int MAP_SIZE;
+    int size, count;
+    TreeSet<Node> pq;
+    Map<Integer, Integer> find_locker; // mid -> locker
+    Map<Integer, Node> range;
 
-    void bfs_init(int map_size, int map[][]) {
-        graph = new int[map_size][map_size];
-        for (int i = 0; i < map_size; i++) {
-            for (int j = 0; j < map_size; j++) {
-                graph[i][j] = map[i][j];
+
+    public void init(int N) {
+        pq = new TreeSet<>(new Comparator<Node>() {
+            @Override
+            public int compare(Node o1, Node o2) {
+                if (o1.total == o2.total) {
+                    return o1.s - o2.s;
+                } else return o2.total - o1.total;
             }
-        }
-        MAP_SIZE = map_size;
+        });
+        find_locker = new HashMap<>();
+        range = new HashMap<>();
+        size = N;
+        count = size;
     }
 
-    int bfs(int x1, int y1, int x2, int y2) {
-        que q = new que();
-        boolean[][] visited = new boolean[MAP_SIZE][MAP_SIZE];
-        q.add(new point(y1 - 1, x1 - 1));
-        int d = 0;
-        while (!q.isempty()) {
-            int qSize = q.size;
-            for (int z = 0; z < qSize; z++) {
-                point cur = q.poll();
-                if (cur.x == x2 - 1 && cur.y == y2 - 1) return d;
-                visited[cur.y][cur.x] = true;
-                for (int i = 0; i < 4; i++) {
-                    int a = cur.y + dy[i];
-                    int b = cur.x + dx[i];
-                    if (0 <= a && a < MAP_SIZE && 0 <= b && b < MAP_SIZE && !visited[a][b] && graph[a][b] == 0) {
-                        q.add(new point(a, b));
-                    }
-                }
+    public int arrive(int mId) { //입실
+        count--;
+        int idx;
+        if (pq.isEmpty()) {
+            idx = 1;
+            Node n = new Node(2, size);
+            pq.add(n);
+            range.put(2, n);
+            range.put(size, n);
+        } else {
+            Node n = pq.pollFirst();
+            if (n.s == n.e) { //한 개 짜리
+                idx = n.s;
+            } else if (n.s + 1 == n.e) { //두 개 짜리
+                idx = n.s;
+                Node n1 = new Node(idx + 1, idx + 1);
+                pq.add(n1);
+                range.put(idx + 1, n1);
+            } else if (n.s == 1) {
+                idx = 1;
+                Node n1 = new Node(idx + 1, n.e);
+                pq.add(n1);
+                range.put(n1.s, n1);
+                range.put(n1.e, n1);
+            } else if (n.e == size) {
+                idx = size;
+                Node n2 = new Node(n.s, size - 1);
+                pq.add(n2);
+                range.put(n2.s, n2);
+                range.put(n2.e, n2);
+            } else {
+                idx = (n.s + n.e) / 2;
+                Node n1 = new Node(n.s, idx - 1);
+                Node n2 = new Node(idx + 1, n.e);
+                pq.add(n1);
+                pq.add(n2);
+                range.put(n1.s, n1);
+                range.put(n1.e, n1);
+                range.put(n2.s, n2);
+                range.put(n2.e, n2);
             }
-            d++;
+            range.put(idx, null);
+
         }
-        return -1;
+        find_locker.put(mId, idx);
+        return idx;
     }
 
-    class que {
-        point[] q = new point[200];
-
-        public que() {
+    public int leave(int mId) {
+        count++;
+        int idx = find_locker.get(mId); //mid의 락커번호, range.get(idx) -> 락커가 속한 구간 노드가 나온다
+        find_locker.put(mId, -1);
+        Node left = range.get(idx - 1);
+        Node right = range.get(idx + 1);
+        if (left == null && right == null) { //양쪽 다 막힘
+            Node n = new Node(idx, idx);
+            pq.add(n);
+            range.put(idx, n);
+        } else if (left == null) { //좌측만 막힌 경우
+            pq.remove(right);
+            range.put(right.s, null);
+            Node n1 = new Node(idx, right.e);
+            pq.add(n1);
+            range.put(n1.s, n1);
+            range.put(n1.e, n1);
+            range.put(idx, n1);
+        } else if (right == null) { //우측만 막힌 경우
+            pq.remove(left);
+            range.put(left.e, null);
+            Node n2 = new Node(left.s, idx);
+            pq.add(n2);
+            range.put(n2.s, n2);
+            range.put(n2.e, n2);
+            range.put(idx, n2);
+        } else { //양쪽 다 뚫린 경우
+            pq.remove(left);
+            pq.remove(right);
+            range.put(right.s, null);
+            range.put(left.e, null);
+            Node newNode = new Node(left.s, right.e);
+            pq.add(newNode);
+            range.put(newNode.s, newNode);
+            range.put(newNode.e, newNode);
+            range.put(idx, newNode);
         }
-
-        int size = 0;
-
-        void add(point p) {
-            q[size++] = p;
-        }
-
-        point poll() {
-            point a = q[0];
-            for (int i = 0; i < size - 1; i++) {
-                q[i] = q[i + 1];
-            }
-            size--;
-            return a;
-        }
-
-        boolean isempty() {
-            return size == 0;
-        }
-
+        return count;
     }
 
-    class point {
-        int y;
-        int x;
+    class Node {
+        int s, e, total;
 
-        public point(int y, int x) {
-            this.y = y;
-            this.x = x;
+        public Node(int s, int e) {
+            this.s = s;
+            this.e = e;
+            total = e - s + 1;
         }
-
-
     }
 }
