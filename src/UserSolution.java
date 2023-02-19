@@ -1,52 +1,46 @@
-import java.util.ArrayList;
-import java.util.List;
-
 class UserSolution {
     Player[] players;
-    Team[] team;
+    int size;
 
     public void init(int N) {
         players = new Player[N + 1];
-        team = new Team[N + 1];
         for (int i = 1; i <= N; i++) players[i] = new Player(i);
-        for (int i = 1; i <= N; i++) {
-            team[i] = new Team(i); //i번 팀 멤버는 player[i]
-            team[i].add_member(players[i]);
-            players[i].team = team[i];
-        }
+        size = N;
     }
 
-
-    Team getTeam(int a) {
-        return players[a].team;
-    }
 
     public void updateScore(int mWinnerID, int mLoserID, int mScore) {
-        Team win = getTeam(mWinnerID);
-        Team lose = getTeam(mLoserID);
-        for (int i = 0; i < win.members.size(); i++) {
-            win.members.get(i).score += mScore;
+        Player p1 = players[players[mWinnerID].team];
+        Player p2 = players[players[mLoserID].team];
+        while (p1 != null) {
+            p1.score += mScore;
+            p1 = p1.next;
         }
-        for (int i = 0; i < lose.members.size(); i++) {
-            lose.members.get(i).score -= mScore;
+        while (p2 != null) {
+            p2.score -= mScore;
+            p2 = p2.next;
         }
     }
 
     public void unionTeam(int mPlayerA, int mPlayerB) {
-        int a = getTeam(mPlayerA).team_number;
-        int b = getTeam(mPlayerB).team_number;
+        int a = players[mPlayerA].team; //팀 선두
+        int b = players[mPlayerB].team;
         if (a > b) {
             int temp = a;
             a = b;
             b = temp; //a가 항상 더 작도록
+            mPlayerB=mPlayerA;
         }
-        Team aTeam = getTeam(a);
-        Team bTeam = getTeam(b);
-        for (int i = 0; i < bTeam.members.size(); i++) {
-            players[a].team.add_member(bTeam.members.get(i));
-            bTeam.members.get(i).team = aTeam;
+        Player last = players[a];
+        while (last.next != null) {
+            last = last.next;
         }
-        team[b] = null;
+        last.next = players[b];
+        Player p = players[mPlayerB];
+        while (p != null) {
+            p.team = a;
+            p = p.next;
+        }
     }
 
     public int getScore(int mID) {
@@ -55,28 +49,14 @@ class UserSolution {
 
 
     class Player {
-        int index, score;
-        Team team;
+        int score, team;
+        Player next;
 
         public Player(int index) {
-            this.index = index;
+            team = index;
             score = 0;
         }
     }
 
-    class Team {
-        int team_number;
-        List<Player> members;
-
-        public Team(int team_number) {
-            this.team_number = team_number;
-            members = new ArrayList<>();
-        }
-
-        public void add_member(Player p) {
-            members.add(p);
-        }
-
-    }
 
 }
