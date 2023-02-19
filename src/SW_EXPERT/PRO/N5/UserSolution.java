@@ -1,3 +1,5 @@
+package SW_EXPERT.PRO.N5;
+
 class UserSolution {
     int[] parent, score;
 
