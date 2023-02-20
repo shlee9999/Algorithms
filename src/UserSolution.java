@@ -2,22 +2,55 @@ import java.util.Arrays;
 import java.util.Stack;
 
 class UserSolution {
-    Stack<Disk>[] top;
+    stack[] top;
     Disk[] disk;
-    int count, k2, prev;
+    Peak[] peaks;
+    int count, n;
     int a, b, c;
 
+    class stack {
+        int size;
+        Disk[] arr;
+
+        public stack() {
+            arr = new Disk[1001];
+            size = 0;
+        }
+
+        boolean isempty() {
+            return size == 0;
+        }
+
+        Disk peek() {
+            return arr[size - 1];
+        }
+
+        Disk pop() {
+            return arr[size-- - 1];
+        }
+
+        void push(Disk disk) {
+            arr[size++] = disk;
+        }
+
+        public int size() {
+            return size;
+        }
+    }
+
     void init(int[] N, int[][] mDisk) {
-        top = new Stack[4];
+        peaks = new Peak[500001];
+        top = new stack[4];
+        count = 0;
+        n = 0;
         for (int i = 1; i <= 3; i++) {
-            top[i] = new Stack<>();
+            top[i] = new stack();
         }
         disk = new Disk[N[0] + N[1] + N[2]];
-        int cnt=0;
+        int cnt = 0;
         for (int i = 0; i < 3; i++) {
-            int below = N[i];
             for (int j = 0; j < N[i]; j++) {
-                disk[cnt++] = new Disk(mDisk[i][j], i + 1, --below);
+                disk[cnt++] = new Disk(mDisk[i][j], i + 1);
             }
         }
         Arrays.sort(disk);
@@ -33,47 +66,47 @@ class UserSolution {
                 disk[i].dst = d;
             }
         }
-//        for (int i = 0; i < disk.length; i++) {
-//            System.out.print("disk[" + i + "] : size = " + disk[i].size);
-//            System.out.println(", src = " + disk[i].src + ", dst = " + disk[i].dst + ", below = " + disk[i].below);
-//        }
         for (int i = disk.length - 1; i >= 0; i--) {
             top[disk[i].src].push(disk[i]);
         }
-        k2 = 0;
-    }
 
-    void destroy() {
-
-    }
-
-    void go(int k, int[] mTop) {
-        top = new Stack[4];
-        for (int i = 1; i <= 3; i++) {
-            top[i] = new Stack<>();
-        }
-        for (int i = disk.length - 1; i >= 0; i--) {
-            top[disk[i].src].push(disk[i]);
-        }
-        count = 0;
-        k2 += k;
-        for (int i = 1; i < disk.length; i++) {
+        for (int i = 0; i < disk.length; i++) {
             int mid = -1;
             for (int j = 1; j <= 3; j++)
                 if (j != disk[i].src && j != disk[i].dst) mid = j;
-//            System.out.println("i = " + i);
-//            System.out.print("disk[" + i + "] :  = ");
-//            System.out.println("src = " + disk[i].src + " dst = " + disk[i].dst + " below = " + disk[i].below);
-            Move(disk[i].src, disk[i].dst);
-            Hanoi(i, mid, disk[i].dst, disk[i].src);
+            if (i == 0) {
+                Move(disk[i].src, disk[i].dst);
+                continue;
+            }
+            if (disk[i].src != disk[i].dst) {
+                Move(disk[i].src, disk[i].dst);
+                Hanoi(i, mid, disk[i].dst, disk[i].src);
+            } else Hanoi(i, disk[i - 1].dst, disk[i].dst, disk[i].src);
+
+
         }
-        mTop[0] = a;
-        mTop[1] = b;
-        mTop[2] = c;
+
+    }
+
+    void destroy() {
+    }
+
+    void go(int k, int[] mTop) {
+        n += k;
+        if (n > count) {
+            mTop[0] = 0;
+            mTop[1] = 0;
+            mTop[2] = top[3].peek().size;
+        } else {
+            mTop[0] = peaks[n].top1;
+            mTop[1] = peaks[n].top2;
+            mTop[2] = peaks[n].top3;
+        }
     }
 
 
     void Hanoi(int N, int s, int e, int m) {
+        if (count >= 500000) return;
         if (N == 1) {
             Move(s, e);
             return;
@@ -84,41 +117,40 @@ class UserSolution {
     }
 
     void Move(int s, int e) {
+        if (count >= 500000) return;
         if (s != e) {
-            count++;
-            if (!top[s].isEmpty()) top[e].push(top[s].pop());
-//            System.out.println("Move " + s + "->" + e);
-            if (count == k2) {
-                if (top[1].isEmpty()) a = 0;
+            if (top[3].size() == disk.length) {
+                peaks[++count] = new Peak(0, 0, top[3].peek().size);
+            } else {
+                if (!top[s].isempty()) top[e].push(top[s].pop());
+                if (top[1].isempty()) a = 0;
                 else a = top[1].peek().size;
-                if (top[2].isEmpty()) b = 0;
+                if (top[2].isempty()) b = 0;
                 else b = top[2].peek().size;
-                if (top[3].isEmpty()) c = 0;
+                if (top[3].isempty()) c = 0;
                 else c = top[3].peek().size;
-//                System.out.println(a + " " + b + " " + c);
-//                for (int i = 1; i <= 3; i++) {
-//                    if (top[i].isEmpty()) System.out.println("0");
-//                    else {
-//                        for (Disk disk1 : top[i]) {
-//                            System.out.print(disk1.size + " ");
-//                        }
-//                        System.out.println();
-//                    }
-//
-//                }
+                peaks[++count] = new Peak(a, b, c);
             }
         }
     }
 
+    class Peak {
+        int top1, top2, top3;
+
+        public Peak(int top1, int top2, int top3) {
+            this.top1 = top1;
+            this.top2 = top2;
+            this.top3 = top3;
+        }
+    }
 
     class Disk implements Comparable<Disk> {
-        int size, src, dst, below;
+        int size, src, dst;
 
 
-        public Disk(int size, int src, int below) {
+        public Disk(int size, int src) {
             this.size = size;
             this.src = src;
-            this.below = below;
         }
 
         @Override
