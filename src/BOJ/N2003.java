@@ -1,7 +1,9 @@
+package BOJ;
+
 import java.io.*;
 import java.util.StringTokenizer;
 
-public class Main {
+public class N2003 {
     //2003번
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -26,7 +28,7 @@ public class Main {
                 if(rp>=N) break;
                 sum+=arr[rp++];
             } else {
-                 //sum==M
+                //sum==M
 //                System.out.println("lp="+lp);
 //                System.out.println("rp=" + (rp - 1));
 //                System.out.println("sum="+sum);
