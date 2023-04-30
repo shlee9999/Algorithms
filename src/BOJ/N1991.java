@@ -1,7 +1,8 @@
+package BOJ;
 import java.io.*;
 import java.util.StringTokenizer;
 
-public class Main {
+public class N1991 {
 
     static int N;
 
