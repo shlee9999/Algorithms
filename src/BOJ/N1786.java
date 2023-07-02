@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 public class N1786 { //KMP
     static List<Integer> list = new ArrayList<>();
     public static void main(String[] args) throws IOException {
