@@ -1,5 +1,6 @@
 package SW_EXPERT.PRO.N4;
 
+import java.io.InputStreamReader;
 import java.util.Arrays;
 
 class UserSolution { //무질서한 하노이탑
@@ -57,6 +58,7 @@ class UserSolution { //무질서한 하노이탑
     }
 
     void destroy() {
+
     }
 
     void go(int k, int[] mTop) {

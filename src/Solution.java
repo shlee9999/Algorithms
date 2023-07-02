@@ -1,67 +1,66 @@
-import java.io.IOException;
-import java.util.Scanner;
+import java.awt.*;
 
 class Solution {
-    private static Scanner sc;
-    private static UserSolution usersolution = new UserSolution();
-    static final int MAX_N = 1000;
-    static final int CMD_INIT = 100;
-    static final int CMD_DESTROY = 200;
-    static final int CMD_GO = 300;
-    static int [][] mDisk = new int [3][MAX_N];
+    static char[][] graph;
+    static Point nowPos;
 
-    private static int run() throws IOException {
-        int isOK = 0;
-        int N = sc.nextInt();
-        int cmd;
-
-        for (int c = 0; c < N; ++c) {
-            cmd =  sc.nextInt();
-            switch (cmd) {
-                case CMD_INIT:
-                    int [] mCount = new int[3];
-                    mCount[0] = sc.nextInt();
-                    mCount[1] = sc.nextInt();
-                    mCount[2] = sc.nextInt();
-                    for (int j = 0; j < 3; j++)
-                        for(int i=0;i<mCount[j];i++)
-                            mDisk[j][i] = sc.nextInt();
-                    usersolution.init(mCount,mDisk);
-                    isOK = 1;
-                    break;
-                case CMD_GO:
-                    int mK = sc.nextInt();
-                    int [] result = new int[3];
-                    result[0] = result[1] = result[2] = -1;
-                    usersolution.go(mK, result);
-                    int [] check = new int[3];
-                    check[0] = sc.nextInt();
-                    check[1] = sc.nextInt();
-                    check[2] = sc.nextInt();
-                    if (result[0] != check[0] || result[1] != check[1] || result[2] != check[2])
-                        isOK = 0;
-                    break;
-                default:
-                    isOK = 0;
-                    break;
+    static public int[] solution(String[] park, String[] routes) {
+        graph = new char[park.length][park[0].length()];
+        for (int i = 0; i < park.length; i++) {
+            for (int j = 0; j < park[0].length(); j++) {
+                graph[i][j] = park[i].charAt(j);
+                if (graph[i][j] == 'S') nowPos = new Point(i, j);
             }
+        } //graph 세팅 및 시작지점 설정 완료
+        for (int i = 0; i < routes.length; i++) {
+            String[] split = routes[i].split(" ");
+            move(split[0].charAt(0), Integer.parseInt(split[1]));
         }
-        usersolution.destroy();
-        return isOK;
+        int[] answer = {nowPos.x, nowPos.y};
+        return answer;
     }
 
-    public static void main(String[] args) throws Exception {
-        int T, MARK;
-        System.setIn(new java.io.FileInputStream("src/sample_input.txt"));
-        sc = new Scanner(System.in);
-        T = sc.nextInt();
-        MARK = sc.nextInt();
-        for (int tc = 1; tc <= T; tc++) {
-            if (run() == 1)
-                System.out.println("#" + tc + " " + MARK);
-            else
-                System.out.println("#" + tc + " 0");
+    static void move(char op, int n) {
+        switch (op) {
+            case 'E':
+                if (nowPos.y + n >= graph[0].length || !checkValid(op, n)) break;
+                else nowPos = new Point(nowPos.x, nowPos.y + n);
+                break;
+            case 'W':
+                if (nowPos.y - n < 0 || !checkValid(op, n)) break;
+                else nowPos = new Point(nowPos.x, nowPos.y - n);
+                break;
+            case 'S':
+                if (nowPos.x + n >= graph.length || !checkValid(op, n)) break;
+                else nowPos = new Point(nowPos.x + n, nowPos.y);
+                break;
+            case 'N':
+                if (nowPos.x - n < 0 || !checkValid(op, n)) break;
+                else nowPos = new Point(nowPos.x - n, nowPos.y);
+                break;
         }
-        sc.close();
     }
+
+    static boolean checkValid(char op, int n) {
+        switch (op) {
+            case 'E':
+                for (int i = nowPos.y; i <= nowPos.y + n; i++)
+                    if (graph[nowPos.x][i] == 'X') return false;
+                break;
+            case 'W':
+                for (int i = nowPos.y; i >= nowPos.y - n; i--)
+                    if (graph[nowPos.x][i] == 'X') return false;
+                break;
+            case 'S':
+                for (int i = nowPos.x; i <= nowPos.x + n; i++)
+                    if (graph[i][nowPos.y] == 'X') return false;
+                break;
+            case 'N':
+                for (int i = nowPos.x; i >= nowPos.x - n; i--)
+                    if (graph[i][nowPos.y] == 'X') return false;
+                break;
+        }
+        return true;
+    }
+
 }

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import java.io.*;
 import java.util.StringTokenizer;
 
@@ -69,3 +70,11 @@ public class Main {
     }
 
 }
+=======
+
+class Main {
+    public static void main(String[] args) {
+
+    }
+}
+>>>>>>> Stashed changes
